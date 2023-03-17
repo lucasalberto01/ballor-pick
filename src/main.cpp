@@ -21,36 +21,41 @@ void loop()
   if (PS4.isConnected())
   {
 
-    int lStick = PS4.LStickY();
-    int rStick = PS4.RStickY();
+    int lStick = PS4.LStickY(); // -127 to 127
+    int rStick = PS4.RStickY(); // -127 to 127
 
-    if (lStick > 10)
-    {
-      motors.forward();
-    }
-    else if (lStick < -10)
+    if (lStick < -50)
     {
       motors.backward();
     }
-    else if (rStick > 10)
+    else if (lStick > 50)
     {
       motors.forward();
     }
-    else if (rStick < -10)
+    else if (rStick < -50)
     {
-      motors.backward();
+      motors.forwardA();
+      motors.backwardB();
+    }
+    else if (rStick > 50)
+    {
+      motors.backwardA();
+      motors.forwardB();
     }
     else
     {
       motors.stop();
     }
 
-    if (PS4.Charging())
+    if (PS4.Charging()){
       Serial.println("The controller is charging");
-    if (PS4.Audio())
-      Serial.println("The controller has headphones attached");
-    if (PS4.Mic())
+    }
+    if (PS4.Audio()){
+        Serial.println("The controller has headphones attached");
+    }
+    if (PS4.Mic()){
       Serial.println("The controller has a mic attached");
+    }
 
     Serial.printf("Battery Level : %d\n", PS4.Battery());
     // Remove it when you're not trying to see the output
