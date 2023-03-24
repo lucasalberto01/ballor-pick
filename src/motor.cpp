@@ -12,11 +12,11 @@
 VespaMotors::VespaMotors(void)
     : _pinMA1(16),
       _pinMA2(17),
-      _pinMB1(32),
-      _pinMB2(33),
+      _pinMB1(25),
+      _pinMB2(26),
       _pwm_channel_A(VESPA_MOTORS_CHANNEL_A),
       _pwm_channel_B(VESPA_MOTORS_CHANNEL_B),
-      _pwm_frequency(5000),  // 5 kHz
+      _pwm_frequency(2000),  // 5 kHz
       _pwm_resolution(10)    // 10 bits
 {
     // configure the pins

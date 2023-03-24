@@ -4,8 +4,8 @@
 #include <Arduino.h>
 #include <stdint.h>
 
-#define VESPA_MOTORS_CHANNEL_A 25
-#define VESPA_MOTORS_CHANNEL_B 26
+#define VESPA_MOTORS_CHANNEL_A 0
+#define VESPA_MOTORS_CHANNEL_B 1
 
 // --------------------------------------------------
 // Class - Vespa Motors
