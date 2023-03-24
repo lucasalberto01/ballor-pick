@@ -1,64 +1,70 @@
+#include "main.h"
+
 #include <Arduino.h>
+
+#include "motor.h"
+
+#define MODE \
+    MODE_BT  // Change this to MODE_PS4 if you want to use the PS4 controller
+
+#if MODE == MODE_PS4  // PS4 controller
+
 #include <PS4Controller.h>
-#include <L298NX2.h>
+PS4Controller PS4;
 
-#define IN1_A 34
-#define IN2_A 35
+#endif
 
-#define IN1_B 32
-#define IN2_B 33
-L298NX2 motors(IN1_A, IN2_A, IN1_B, IN2_B);
-void setup()
-{
-  Serial.begin(115200);
-  PS4.begin("1a:2b:3c:01:01:01");
-  Serial.println("Ready.");
+#if MODE == MODE_BT  // Bluetooth controller
+
+#include "BluetoothSerial.h"
+BluetoothSerial SerialBT;
+
+#endif
+
+VespaMotors motors;
+
+void setup() {
+    Serial.begin(115200);
+
+#if MODE == MODE_PS4
+    PS4.begin("1a:2b:3c:01:01:01");
+    Serial.println("Ready.");
+#endif
+
+#if MODE == MODE_BT
+    SerialBT.begin("ESP32");
+    Serial.println("The device started, now you can pair it with bluetooth!");
+#endif
 }
 
-void loop()
-{
-  // Below has all accessible outputs from the controller
-  if (PS4.isConnected())
-  {
+void loop() {
+    int lStick = 0, rStick = 0;
 
-    int lStick = PS4.LStickY(); // -127 to 127
-    int rStick = PS4.RStickY(); // -127 to 127
+#if MODE == MODE_PS4
+    if (PS4.isConnected()) {
+        lStick = PS4.LStickY();  // -127 to 127
+        rStick = PS4.RStickY();  // -127 to 127
 
-    if (lStick < -50)
-    {
-      motors.backward();
+        Serial.printf("Battery Level : %d\n", PS4.Battery());
+        move(lStick, rStick);
     }
-    else if (lStick > 50)
-    {
-      motors.forward();
-    }
-    else if (rStick < -50)
-    {
-      motors.forwardA();
-      motors.backwardB();
-    }
-    else if (rStick > 50)
-    {
-      motors.backwardA();
-      motors.forwardB();
-    }
-    else
-    {
-      motors.stop();
-    }
+#endif
 
-    if (PS4.Charging()){
-      Serial.println("The controller is charging");
+#if MODE == MODE_BT
+    if (SerialBT.available()) {
+        char c = SerialBT.read();
+        Serial.println(c);
+        if (c == 'F') {
+            motors.forward(100);
+        } else if (c == 'L') {
+            motors.turn(100, 0);
+        } else if (c == 'R') {
+            motors.turn(0, 100);
+        } else if (c == 'B') {
+            motors.backward(100);
+        } else if (c == 'S') {
+            motors.stop();
+        }
     }
-    if (PS4.Audio()){
-        Serial.println("The controller has headphones attached");
-    }
-    if (PS4.Mic()){
-      Serial.println("The controller has a mic attached");
-    }
-
-    Serial.printf("Battery Level : %d\n", PS4.Battery());
-    // Remove it when you're not trying to see the output
-    delay(10);
-  }
+#endif
 }
